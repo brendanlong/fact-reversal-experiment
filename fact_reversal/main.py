@@ -32,6 +32,15 @@ def main():
     parser.add_argument(
         "--batch_size", type=int, default=32, help="Batch size for training"
     )
+    parser.add_argument(
+        "--models",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Models to train (default: all). Choices: SingleLayerFull, "
+        "SingleLayerHalf, SingleLayerQuarter, SingleLayerEighth, "
+        "SingleLayerSixteenth, SingleLayerTiny, TwoLayerNet",
+    )
 
     args = parser.parse_args()
 
@@ -52,7 +61,7 @@ def main():
 
     vocab_size = train_data.vocab_size
 
-    models = {
+    all_models = {
         "SingleLayerFull": SingleLayerFull(vocab_size),
         "SingleLayerHalf": SingleLayerHalf(vocab_size),
         "SingleLayerQuarter": SingleLayerQuarter(vocab_size),
@@ -61,6 +70,14 @@ def main():
         "SingleLayerTiny": SingleLayerTiny(vocab_size),
         "TwoLayerNet": TwoLayerNet(vocab_size),
     }
+
+    if args.models is None:
+        models = all_models
+    else:
+        models = {name: all_models[name] for name in args.models if name in all_models}
+        invalid = set(args.models) - set(all_models.keys())
+        if invalid:
+            print(f"Warning: Unknown models ignored: {invalid}")
 
     print(f"\nVocabulary size: {vocab_size}")
     print("\nTraining models...")
