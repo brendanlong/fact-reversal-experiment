@@ -1,0 +1,19 @@
+[project]
+name = "fact-reversal-experiment"
+version = "0.1.0"
+description = "Experiment on bidirectional fact retrieval in neural networks"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
