@@ -3,7 +3,15 @@
 import argparse
 import torch
 from fact_reversal.data import generate_facts, split_data
-from fact_reversal.models import SingleLayerFull, SingleLayerHalf, TwoLayerNet
+from fact_reversal.models import (
+    SingleLayerFull,
+    SingleLayerHalf,
+    SingleLayerQuarter,
+    SingleLayerEighth,
+    SingleLayerSixteenth,
+    SingleLayerTiny,
+    TwoLayerNet,
+)
 from fact_reversal.train import train_model
 
 
@@ -47,6 +55,10 @@ def main():
     models = {
         "SingleLayerFull": SingleLayerFull(vocab_size),
         "SingleLayerHalf": SingleLayerHalf(vocab_size),
+        "SingleLayerQuarter": SingleLayerQuarter(vocab_size),
+        "SingleLayerEighth": SingleLayerEighth(vocab_size),
+        "SingleLayerSixteenth": SingleLayerSixteenth(vocab_size),
+        "SingleLayerTiny": SingleLayerTiny(vocab_size),
         "TwoLayerNet": TwoLayerNet(vocab_size),
     }
 

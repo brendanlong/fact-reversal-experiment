@@ -60,6 +60,70 @@ class SingleLayerHalf(nn.Module):
         return self.net(x)
 
 
+class SingleLayerQuarter(nn.Module):
+    """Single hidden layer with quarter capacity (num_facts // 2 hidden units)."""
+
+    def __init__(self, vocab_size: int):
+        super().__init__()
+        hidden_size = max(1, vocab_size // 4)
+        self.net = nn.Sequential(
+            nn.Linear(vocab_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, vocab_size),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+class SingleLayerEighth(nn.Module):
+    """Single hidden layer with 1/8 capacity."""
+
+    def __init__(self, vocab_size: int):
+        super().__init__()
+        hidden_size = max(1, vocab_size // 8)
+        self.net = nn.Sequential(
+            nn.Linear(vocab_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, vocab_size),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+class SingleLayerSixteenth(nn.Module):
+    """Single hidden layer with 1/16 capacity."""
+
+    def __init__(self, vocab_size: int):
+        super().__init__()
+        hidden_size = max(1, vocab_size // 16)
+        self.net = nn.Sequential(
+            nn.Linear(vocab_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, vocab_size),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+class SingleLayerTiny(nn.Module):
+    """Single hidden layer with 1/32 capacity."""
+
+    def __init__(self, vocab_size: int):
+        super().__init__()
+        hidden_size = max(1, vocab_size // 32)
+        self.net = nn.Sequential(
+            nn.Linear(vocab_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, vocab_size),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
 class TwoLayerNet(nn.Module):
     """Two hidden layers with num_facts units each."""
 
