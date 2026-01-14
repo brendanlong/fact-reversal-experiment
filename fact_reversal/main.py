@@ -109,14 +109,16 @@ def main():
     print(f"{'='*60}")
 
     # Summary comparison
-    print("\nModel Comparison (Test Set):")
-    print(f"{'Model':<20} {'Accuracy':<12} {'Forward':<12} {'Reverse':<12}")
-    print("-" * 56)
+    print("\nModel Comparison:")
+    print(f"{'Model':<20} {'Train Acc':<12} {'Test Acc':<12} {'Test Fwd':<12} {'Test Rev':<12}")
+    print("-" * 68)
 
     for model_name, result in results.items():
+        final_train = result["history"]["train"][-1]
         final_test = result["history"]["test"][-1]
         print(
-            f"{model_name:<20} {final_test.accuracy:<12.4f} "
+            f"{model_name:<20} {final_train.accuracy:<12.4f} "
+            f"{final_test.accuracy:<12.4f} "
             f"{final_test.forward_accuracy:<12.4f} "
             f"{final_test.reverse_accuracy:<12.4f}"
         )
