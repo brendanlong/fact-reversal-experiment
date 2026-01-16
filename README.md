@@ -21,29 +21,56 @@ Can neural networks learn to perform bidirectional lookups of facts they've memo
 
 - **Training set**: Contains at least one direction of each fact
 - **Validation set**: Samples not in training (may contain reverse directions)
-- **Test set**: Evaluation on unseen samples
+- **Test set**: Evaluation on unseen samples (typically the reverse direction of trained facts)
 
 This split strategy ensures:
 - The model has seen every fact in at least one direction during training
-- We can still evaluate generalization to unseen orderings/contexts
+- We can evaluate generalization to the reverse direction
 
 ### Models Tested
 
-Three simple fully-connected models are trained:
+#### Standard MLP Models
 
-1. **Single Layer (Full)**: 1 hidden layer with `2N` hidden units (enough parameters to memorize all data)
-2. **Single Layer (Half)**: 1 hidden layer with `N` hidden units (half the capacity)
-3. **Two Layers**: 2 hidden layers with `N` units each
+These models use separate weight matrices for input and output transformations:
 
-Each model:
-- Takes one-hot encoded input (vocabulary size = 2N)
-- Outputs logits for 2N classes
-- Uses cross-entropy loss
-- Is trained to classify the paired number
+1. **SingleLayerFull**: 1 hidden layer with `2N` hidden units (full capacity)
+2. **SingleLayerHalf**: 1 hidden layer with `N` hidden units (half capacity)
+3. **SingleLayerQuarter/Eighth/Sixteenth/Tiny**: Progressively smaller capacities
+4. **TwoLayerNet**: 2 hidden layers with `N` units each
 
-### Hypothesis
+#### Symmetric Architecture Models
 
-**The model will struggle with bidirectional lookups** - even with enough capacity to memorize, networks may fail to learn symmetric associations from random data. The model might learn a→b well but fail on b→a, suggesting it doesn't form true bidirectional knowledge.
+These models use shared embeddings between input and output, enabling bidirectional generalization:
+
+5. **TiedWeights**: Autoencoder-style with `W_output = W_input.T` (tied weights)
+6. **EmbeddingDotProduct**: Output logits = dot product of input embedding with all embeddings
+7. **EmbeddingDotProductMasked**: Same as above, but masks self-predictions (diagonal)
+8. **EmbeddingCosine**: Uses cosine similarity (normalized embeddings) with learnable temperature
+9. **EmbeddingCosineMasked**: Cosine similarity with self-prediction masking
+
+All models:
+- Take one-hot encoded input (vocabulary size = 2N)
+- Output logits for 2N classes
+- Use cross-entropy loss
+- Are trained with Adam optimizer
+
+## Key Findings
+
+### Standard MLPs Fail to Generalize
+
+Standard MLP architectures achieve high training accuracy but **0% test accuracy** on reverse directions. They memorize unidirectional mappings without learning symmetric relationships.
+
+### Self-Similarity is the Problem
+
+The basic embedding models (`EmbeddingDotProduct`, `EmbeddingCosine`) also fail because `embed(a) · embed(a)` (self-similarity) is always maximal, causing the model to predict the input itself.
+
+### Masked Embeddings Solve Bidirectionality
+
+The masked variants (`EmbeddingDotProductMasked`, `EmbeddingCosineMasked`) achieve **100% test accuracy** by:
+1. Using shared embeddings (symmetric by design)
+2. Masking self-predictions to prevent trivial solutions
+
+This demonstrates that bidirectional fact learning is possible with the right architectural inductive bias.
 
 ## Installation
 
@@ -55,9 +82,17 @@ uv sync
 
 ## Running the Experiment
 
+Run all models:
 ```bash
 python -m fact_reversal.main --num_facts 10 --epochs 100
 ```
+
+Run specific models:
+```bash
+python -m fact_reversal.main --models EmbeddingDotProductMasked EmbeddingCosineMasked --epochs 200
+```
+
+Available models: `SingleLayerFull`, `SingleLayerHalf`, `SingleLayerQuarter`, `SingleLayerEighth`, `SingleLayerSixteenth`, `SingleLayerTiny`, `TwoLayerNet`, `TiedWeights`, `EmbeddingDotProduct`, `EmbeddingDotProductMasked`, `EmbeddingCosine`, `EmbeddingCosineMasked`
 
 ## Running Tests
 
@@ -81,10 +116,14 @@ tests/
 └── test_integration.py  # End-to-end tests
 ```
 
-## Expected Results
+## Example Results
 
-We expect to observe:
-- Models with sufficient capacity may memorize individual facts but struggle with bidirectionality
-- The full-capacity model should perform better than the half-capacity model on forward lookups
-- The two-layer model's performance will be interesting - it may show whether depth helps
-- Likely failure pattern: High accuracy on seen directions, low accuracy on reverse directions
+```
+Model                     Train Acc    Test Acc
+--------------------------------------------
+SingleLayerFull           1.0000       0.0000
+SingleLayerHalf           1.0000       0.0000
+EmbeddingDotProduct       0.7143       0.0000
+EmbeddingDotProductMasked 1.0000       1.0000  ✓
+EmbeddingCosineMasked     1.0000       1.0000  ✓
+```

@@ -11,6 +11,11 @@ from fact_reversal.models import (
     SingleLayerSixteenth,
     SingleLayerTiny,
     TwoLayerNet,
+    TiedWeights,
+    EmbeddingDotProduct,
+    EmbeddingDotProductMasked,
+    EmbeddingCosine,
+    EmbeddingCosineMasked,
 )
 from fact_reversal.train import train_model
 
@@ -39,7 +44,9 @@ def main():
         default=None,
         help="Models to train (default: all). Choices: SingleLayerFull, "
         "SingleLayerHalf, SingleLayerQuarter, SingleLayerEighth, "
-        "SingleLayerSixteenth, SingleLayerTiny, TwoLayerNet",
+        "SingleLayerSixteenth, SingleLayerTiny, TwoLayerNet, "
+        "TiedWeights, EmbeddingDotProduct, EmbeddingDotProductMasked, "
+        "EmbeddingCosine, EmbeddingCosineMasked",
     )
 
     args = parser.parse_args()
@@ -69,6 +76,11 @@ def main():
         "SingleLayerSixteenth": SingleLayerSixteenth(vocab_size),
         "SingleLayerTiny": SingleLayerTiny(vocab_size),
         "TwoLayerNet": TwoLayerNet(vocab_size),
+        "TiedWeights": TiedWeights(vocab_size),
+        "EmbeddingDotProduct": EmbeddingDotProduct(vocab_size),
+        "EmbeddingDotProductMasked": EmbeddingDotProductMasked(vocab_size),
+        "EmbeddingCosine": EmbeddingCosine(vocab_size),
+        "EmbeddingCosineMasked": EmbeddingCosineMasked(vocab_size),
     }
 
     if args.models is None:
